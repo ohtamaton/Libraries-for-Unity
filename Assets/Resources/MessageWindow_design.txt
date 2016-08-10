@@ -1,0 +1,45 @@
+1. メッセージループ(Name, Message, Speed)
+2. 選択肢(SelectLists, ...)
+3. Wait処理()
+4. ウィンドウ表示
+5. ウィンドウ非表示
+6. イベント処理(EventName, ...)
+7. メッセージ内の席表現によるタグ処理(太字, 改行, ライン, 色, 斜表示)
+
+@message_start("ohtamaton", 0.1)
+brabrabra
+brabrara
+brabrara
+@message_end
+@name("ohtamaton")
+@message("ohtamaton", "brabrabrabrabra", 0.1)
+@select("YES", "NO")
+@wait
+@showWindow
+@closeWindow
+@event("clush", 1)
+
+1. 空白, 改行からまず@を探す
+[message_start/message_end]
+1. messageのあとが_startなら正常
+2. "を探し, 次の"までを名前と判定
+3. カンマの次の数字を探し,) or 空白までで数値を取り出す.
+4. 改行の次の文字から次の@までがセリフ
+5. @の後がmessage_endでなければエラーで終了.
+[name]
+1. nameのあとが(, "であればその次から名前開始.
+
+char left_bracket = "("
+char right_bracket = ")"
+char double_quoto = '"'
+char at_mark = "@"
+char newline = "\r\n"
+char space = " "
+char comma = ","
+char dot = "."
+number = {"0" |"1" | "2" | "3" | "4"| "5"| "6"| "7"| "8"| "9"}
+non_zero = {"1" | "2" | "3" | "4"| "5"| "6"| "7"| "8"| "9"}
+integer = (non_zero)+(number)* [+:more than 1 *:0 or more]
+decimal = (non_zero)+(number)* [+:more than 1 *:0 or more](".")[+:more than 1 *:0 or more]+
+alphabet = {"a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" ... }
+message = "@message"

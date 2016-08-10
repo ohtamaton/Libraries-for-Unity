@@ -22,32 +22,40 @@ using System;
 public class MessageWindowController : MonoBehaviour
 {
 
+    //メッセージウィンドウの表示・非表示
     public bool enables = true;
+    //メッセージウィンドウオブジェクト
     public GameObject messageWindow;
 
+    //メッセージウィンドウに表示するテキストシナリオ
     [SerializeField]
     private string[] scenario;
+    //シナリオのページ数
     private int page = 0;
+    //ページ内の表示されている文字数
     private int index = 0;
+    //ページ内のすべての文字が表示されたかどうか
     private bool isEnd = false;
-
+    //現在の時刻
     private float currentTime;
-
+    //表示するメッセージ
     [SerializeField]
     private Text message;
+    //表示する話者名
     [SerializeField]
     private Text speaker;
+    //ページ切り替え待ちシンボル
     [SerializeField]
     private Text waitSimbol;
+    //ページ切り替え待ちシンボルの表示・非表示
     private bool waitSimbolenabled = false;
-
-    private string currentMessage;
-
-    public float messageSpeed = 0.04f;
+    //ページ切り替え待ちシンボル点滅スピード
     public float speed = 0.15f;
-
+    //文字表示スピード
+    public float messageSpeed = 0.04f;
+    //Delimiter
     private string[] delimiter = { "@page\r\n" };
-
+    //Delimiter
     private string[] newLine = { "\r\n" };
 
     void Start()
@@ -55,8 +63,6 @@ public class MessageWindowController : MonoBehaviour
         currentTime = Time.time;
         scenario = getScenariosFromFile("Resources/Scenario.txt");
         string[] tmp = scenario[page].Split(newLine, StringSplitOptions.RemoveEmptyEntries);
-        print(tmp[0]);
-        print(tmp[1]);
         speaker.text = tmp[0];
         scenario[page] = scenario[page].Substring(tmp[0].Length+2);
     }
@@ -66,10 +72,12 @@ public class MessageWindowController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.A))
         {
+            //Aボタンを押されるとメッセージウィンドウの表示切替
             enables = !enables;
         }
         if (Input.GetKeyDown(KeyCode.S))
         {
+            //Sボタンを押されるとページの最初から文字を表示
             reset();
         }
         if (Input.GetKeyDown(KeyCode.D))
@@ -95,6 +103,9 @@ public class MessageWindowController : MonoBehaviour
         process();
     }
 
+    /**
+     * 文字を1文字ずつ表示する処理および, ページ移動待ちシンボルの点滅処理を行う.
+     */
     void process()
     {
         if (index > scenario[page].Length)
@@ -115,6 +126,9 @@ public class MessageWindowController : MonoBehaviour
         }
     }
 
+    /**
+     * ページ内の文字表示をリセットして最初から表示を始める.
+     */
     void reset()
     {
         index = 0;
@@ -122,6 +136,9 @@ public class MessageWindowController : MonoBehaviour
         isEnd = false;
     }
 
+    /**
+     * ページ内の全文字を表示させる.
+     */
     void end()
     {        
         index = scenario[page].Length;
@@ -129,6 +146,12 @@ public class MessageWindowController : MonoBehaviour
         isEnd = true;
     }
 
+    /**
+     * _filePath 読み込むシナリオファイルパス
+     * @return 事前処理・ページ分割したシナリオ
+     * 
+     * 指定されたシナリオファイルを読み込み, 構文に従って, 事前処理・ページ分割して返す.
+     */
     public string[] getScenariosFromFile(string _filePath)
     {
         FileInfo fi = new FileInfo(Application.dataPath + "/" + _filePath);
