@@ -1,14 +1,11 @@
-ohtamaton
-test
-test
-test
-@page
-ohtamaton2
-test2
-test2
-test2
-@page
-ohtamaton3
-test3
-test3
-test3
+@showWindow
+@message_start("god", 0.04)
+When you push the button "Generator Door", 
+the Warp Gate to the another world will be appeared.
+@message_end
+@message("angel", "Please try it.", 0.001)
+@message_start("angel", 0.1)
+After you pushed "D" key, this window will be closed in 3 seconds.
+@message_end
+@wait(3)
+@closeWindow

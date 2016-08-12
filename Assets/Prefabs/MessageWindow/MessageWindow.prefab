@@ -213,10 +213,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   enables: 1
   messageWindow: {fileID: 176968}
-  scenario:
-  - message1
-  - message2
+  scenario: []
   message: {fileID: 11421992}
+  speaker: {fileID: 0}
+  waitSimbol: {fileID: 0}
+  speed: 0.15
   messageSpeed: 0.04
 --- !u!222 &22239570
 CanvasRenderer:

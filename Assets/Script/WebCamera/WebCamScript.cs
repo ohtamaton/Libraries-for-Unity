@@ -17,10 +17,10 @@ public class WebCamScript : MonoBehaviour {
 
     //WebCamTextureの横幅
     [SerializeField]
-    private int Width = 1920;
+    private int Width = 1280;
     [SerializeField]
     //WebCamTextureの縦幅
-    private int Height = 1080;
+    private int Height = 720;
     //WebCameraのFPS値
     [SerializeField]
     private int FPS = 30;
@@ -28,7 +28,9 @@ public class WebCamScript : MonoBehaviour {
     void Start()
     {
         Vector3 euler = transform.localRotation.eulerAngles;
-        transform.localRotation = Quaternion.Euler(euler.x, euler.y, euler.z - 90);
+
+        //Androidの縦向きだと-90
+        transform.localRotation = Quaternion.Euler(euler.x, euler.y, euler.z);// - 90);
 
         WebCamDevice[] devices = WebCamTexture.devices;
 
