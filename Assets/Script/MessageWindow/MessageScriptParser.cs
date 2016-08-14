@@ -175,6 +175,7 @@ public class MessageScriptParser : MonoBehaviour {
                             yield return null;
                             break;
                         case "wait":
+                            messageWindow.SetWaitSimbolEnable(false);
                             if (parameters.Length != 1)
                             {
                                 throw new Exception("script validation error. please check your script at @wait.");
@@ -192,6 +193,36 @@ public class MessageScriptParser : MonoBehaviour {
                             state = State.ST_OTHERS;
                             yield return null;
                             break;
+                        case "if":
+                        /**
+                         * @f_if ($select == 0)
+                         * @f_else if($select ==1)
+                         * @f_else
+                         * 
+                         * 
+                         * @f_if ($rand == 30)
+                         * @f_else if ($rand == 60)
+                         * @f_else
+                         * 
+                         * 
+                         * @f_if ($switch[10] == true)
+                         * 
+                         *
+                         * @f_if($switch[10] != true)
+                         * 
+                         */
+                        //選択結果による分岐
+                        //乱数による分岐
+                        //フラグによる分岐(C#からフラグ情報の取得が必要? フラグ番号のon/offなど)
+                        yield return null;
+                        break;
+                        case "jump":
+                        /**
+                         * @jump(10)
+                         */
+                        //あるスクリプトの行にジャンプする
+                        yield return null;
+                        break;
                         default:
                             throw new Exception("script validation error. please check your script at @wait.");
                     }

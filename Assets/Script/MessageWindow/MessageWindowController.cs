@@ -89,6 +89,11 @@ public class MessageWindowController : MonoBehaviour
         enables = b;
     }
 
+    public void SetWaitSimbolEnable(bool b)
+    {
+        waitSimbolenabled = b;
+    }
+
     // Update is called once per frame
     void Update()
     {
@@ -121,7 +126,7 @@ public class MessageWindowController : MonoBehaviour
                         end();
                     }
                 }
-                waitSimbol.gameObject.SetActive(waitSimbolenabled);
+                
                 process();
                 break;
             case MessageScriptParser.State.ST_END:
@@ -130,6 +135,7 @@ public class MessageWindowController : MonoBehaviour
             default:
                 break;
         }
+        waitSimbol.gameObject.SetActive(waitSimbolenabled);
         messageWindow.gameObject.SetActive(enables);
     }
 
