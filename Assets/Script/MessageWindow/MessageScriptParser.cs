@@ -11,6 +11,7 @@ using System.Collections;
 using System.IO;
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 /**
  * MessageScriptParser
@@ -31,203 +32,292 @@ public class MessageScriptParser : MonoBehaviour {
     public MessageWindowController messageWindow;
 
     //選択ウィンドウ処理用のController
-    //SelectWindowController selectWindow;
+    //TODO SelectWindowController selectWindow;
 
-    // Use this for initialization
-    void Awake () {
-	
-	}
-
-	// Use this for initialization
-	void Start () {
-	}
-	
-	// Update is called once per frame
-	void Update () {
-
-    }
-
-    void MessageStart(string[] parameters)
+    private void Message(string[] parameters)
     {
-
-        parameters[0] = parameters[0].Substring(parameters[0].IndexOf("\"") + 1);
-        parameters[0] = parameters[0].Substring(0, parameters[0].IndexOf("\""));
+        messageWindow.reset();
+        if (parameters.Length != 3)
+        {
+            throw new Exception("script validation error. please check your script at @message.");
+        }
         messageWindow.SetSpeaker(parameters[0]);
-        //TODO setscenario
-        messageWindow.scenario = parameters[1];
-
-        parameters[2] = parameters[2].Replace(" ", string.Empty);
-
+        messageWindow.scenario = (parameters[1]);
         float res;
         if (!float.TryParse(parameters[2], out res))
         {
             throw new Exception("script validation error. please check your script.");
         }
-
         messageWindow.messageSpeed = res;
-
     }
 
-    void Message(string[] parameters)
+    private void Name(string[] parameters)
     {
-        
-        parameters[0] = parameters[0].Substring(parameters[0].IndexOf("\"")+1);
-        parameters[0] = parameters[0].Substring(0, parameters[0].IndexOf("\""));
-        messageWindow.SetSpeaker(parameters[0]);
-        //TODO setscenario
-        parameters[1] = parameters[1].Substring(parameters[1].IndexOf("\"") + 1);
-        parameters[1] = parameters[1].Substring(0, parameters[1].IndexOf("\""));
-        messageWindow.scenario = parameters[1];
-
-        parameters[2] = parameters[2].Replace(" ", string.Empty);
-
-        float res;
-        if (!float.TryParse(parameters[2], out res))
+        if (parameters.Length != 1)
         {
-            throw new Exception("script validation error. please check your script.");
+            throw new Exception("script validation error. please check your script at @name.");
         }
-
-        messageWindow.messageSpeed = res;
-
-    }
-
-    void Name(string[] parameters)
-    {
-        parameters[0] = parameters[0].Substring(parameters[0].IndexOf("\"") + 1);
-        parameters[0] = parameters[0].Substring(0, parameters[0].IndexOf("\""));
         messageWindow.SetSpeaker(parameters[0]);
-        //TODO name更新処理をwindow側で
     }
 
-    void Select(string[] parameters)
+    private void Select(string[] parameters)
     {
         //TODO implementation
+        if (parameters.Length <= 1)
+        {
+            throw new Exception("script validation error. please check your script at @select.");
+        }
         throw new Exception("Sorry, this function is Not implemented yet.");
     }
 
+
     /**
-     * scriptの内容を1行ずつparseして処理を行う.
+     * ScriptPserser
+     * @v_var = 1なども処理できるように
+     * if (条件式) else if elseなども処理できるように
+     * while(条件式) do doneなども処理できるように
+     * for()
+     * 条件式 ==, !=, <, >, >=, <=, &&, 
      */
     public IEnumerator Parse()
     {
-        string[] newLine = { ("\r\n") };
-        string[] delimiter = { "(", ")", ","};
-        string[] lines = script.Split(newLine, StringSplitOptions.RemoveEmptyEntries);
+
+#if UNITY_EDITOR
+        string[] delimiter = { ("\r\n") };
+        string newLine = "\r\n";
+#elif UNITY_STANDALONE_WIN
+        string[] delimiter = { ("\r\n") };
+        string newLine = "\r\n";
+#elif UNITY_STANDALONE_LINUX
+        string[] delimiter = { ("\n") };
+        string newLine = "\n";
+#endif
+
+        //Scriptを改行区切りで分ける.
+        string[] lines = script.Split(delimiter, StringSplitOptions.RemoveEmptyEntries);
         int i = 0;
 
-        while ((i < lines.Length)||(state == State.ST_MESSAGE))
+        while ((i < lines.Length) || (state == State.ST_MESSAGE)) //Scriptの最終行まで処理する.
         {
-            if (state == State.ST_MESSAGE) //Parse処理しない状態の場合はそのまま抜ける.
+            
+            
+            //@を期待するモードかどうかで場合分け
+            if(state == State.ST_MESSAGE)
             {
                 yield return null;
                 continue;
             }
-            if (lines[i].StartsWith("@message_start"))
+            
+            //先頭および末尾に空白文字があれば削除
+            lines[i] = lines[i].Trim();
+
+            //空白文字をなくしたあと何も残らなければ
+            if (lines[i].Equals(""))
             {
-                messageWindow.reset();
-                //パラメータ取得                
-                string[] tmpParams = lines[i].Substring("@message_start".Length).Split(delimiter, StringSplitOptions.RemoveEmptyEntries);
-                
-                if (tmpParams.Length != 2)
-                {
-                    throw new Exception("script validation error. please check your script at @message_start.");
-                }
-                string[] parameters = { tmpParams[0], "", tmpParams[1] };
                 i++;
-                while(!lines[i].StartsWith("@message_end"))
-                {
-                    parameters[1] += lines[i] + "\r\n";
-                    i++;
-                    if(i >= lines.Length)
+                yield return null;
+            }
+            
+            if (!lines[i].StartsWith("@"))
+            {
+                Debug.LogFormat("lines[{0}]:{1}", i, lines[i]);
+                throw new System.Exception("Validation Error.");
+            }
+            
+            if (lines[i].StartsWith("@f_")) //関数処理
+            {
+                //関数名の取得
+                string funcName = getFunctionName(lines[i]);
+                string paramPart = lines[i].Substring(lines[i].IndexOf("(") + 1).Trim();
+                string[] parameters = getParameters(paramPart);
+
+                Debug.LogFormat("paramPart: {0}", paramPart);
+
+                //関数ごとに処理分岐. 関数を追加する場合はここに追加.
+                switch (funcName)
                     {
-                        throw new Exception("script validation error. cannot find @message_end");
+                        case "message":
+                            Message(parameters);
+                            state = State.ST_MESSAGE;
+                            yield return null;
+                            break;
+                        case "message_start":
+                            string message = "";
+                            i++;
+                            while (!lines[i].StartsWith("@f_message_end"))
+                            {
+                                message += lines[i] + newLine;
+                                i++;
+                                if (i >= lines.Length)
+                                {
+                                    throw new Exception("script validation error. cannot find @message_end");
+                                }
+                            }
+                            Debug.LogFormat("1:{0}", parameters.Length);
+                            string[] tmpParams = {parameters[0], message, parameters[1]};
+                            Message(tmpParams);
+                            state = State.ST_MESSAGE;
+                            yield return null;
+                            break;
+                        case "name":
+                            Name(parameters);
+                            state = State.ST_OTHERS;
+                            yield return null;
+                            break;
+                        case "showWindow":
+                            messageWindow.SetWindowEnable(true);
+                            state = State.ST_OTHERS;
+                            yield return null;
+                            break;
+                        case "closeWindow":
+                            messageWindow.SetWindowEnable(false);
+                            state = State.ST_OTHERS;
+                            yield return null;
+                            break;
+                        case "wait":
+                            if (parameters.Length != 1)
+                            {
+                                throw new Exception("script validation error. please check your script at @wait.");
+                            }
+                            int res;
+                            if (!int.TryParse(parameters[0], out res))
+                            {
+                                throw new Exception("script validation error. please check your script at @wait.");
+                            }
+                            state = State.ST_OTHERS;
+                            yield return new WaitForSeconds(res);
+                            break;
+                        case "select":
+                            Select(parameters);
+                            state = State.ST_OTHERS;
+                            yield return null;
+                            break;
+                        default:
+                            throw new Exception("script validation error. please check your script at @wait.");
                     }
                 }
-                MessageStart(parameters);
-                i++;
-                state = State.ST_MESSAGE;
-                yield return null;
-            }
-            else if (lines[i].StartsWith("@message"))
+            else if (lines[i].StartsWith("@v_")) //変数処理
             {
-                messageWindow.reset();
-                //パラメータ取得
-                string[] parameters = lines[i].Substring("@message".Length).Split(delimiter, StringSplitOptions.RemoveEmptyEntries);           
-                if (parameters.Length != 3)
-                {
-                    throw new Exception("script validation error. please check your script at @message.");
-                }
-                Message(parameters);
-                i++;
-                state = State.ST_MESSAGE;
-                yield return null;
-            }
-            else if (lines[i].StartsWith("@name"))
-            {
-                string[] parameters = lines[i].Substring("@name".Length).Split(delimiter, StringSplitOptions.RemoveEmptyEntries);
+                //TODO
+                throw new Exception("@v_ is not supported yet.");
+            } 
+            i++;
+        }
+        state = State.ST_END;
+        yield return null;
+    }
 
-                if (parameters.Length != 1)
-                {
-                    throw new Exception("script validation error. please check your script at @name.");
-                }
 
-                Name(parameters);
-                i++;
-                state = State.ST_OTHERS;
-                yield return null;
-            }
-            else if (lines[i].StartsWith("@select"))
-            {
-                string[] parameters = lines[i].Substring("@select".Length).Split(delimiter, StringSplitOptions.RemoveEmptyEntries);
+    private string getFunctionName(string s)
+    {
+        //関数名の取得
+        if (s.Equals(""))
+        {
+            //
+            return null;
+        }
 
-                if (parameters.Length <= 1)
-                {
-                    throw new Exception("script validation error. please check your script at @select.");
-                }
-                Select(parameters);
-                i++;
-                state = State.ST_OTHERS;
-                yield return null;
-            }
-            else if (lines[i].StartsWith("@wait"))
+        string funcName = "";
+
+        if (s.IndexOf("(") < 0)
+        {
+            funcName = s.Substring("@f_".Length);
+            Debug.Log(s);
+            return funcName;
+        }
+
+        if (!s.EndsWith(")"))
+        {
+            throw new System.Exception("Validation Error.");
+        }
+
+        funcName = s.Substring(0, s.IndexOf("(")).Substring("@f_".Length);
+        Debug.LogFormat("funcName:{0};", funcName);
+
+        if (!isFunctionName(funcName))
+        {
+            throw new System.Exception("Validation Error. func name is invalid.");
+        }
+
+        return funcName;
+    }
+
+    private string[] getParameters(string paramPart)
+    {
+        List<string> parameters = new List<string>();
+        Debug.LogFormat("getParameters start paramPart:{0};", paramPart);
+
+        while (paramPart.Length != 0 && !paramPart[0].Equals(")"))
+        {
+            if (paramPart.StartsWith("\""))
             {
-                string[] parameters = lines[i].Substring("@wait".Length).Split(delimiter, StringSplitOptions.RemoveEmptyEntries);
-                if (parameters.Length != 1)
-                {
-                    throw new Exception("script validation error. please check your script at @wait.");
-                }
-                int res;
-                if(!int.TryParse(parameters[0], out res))
-                {
-                    throw new Exception("script validation error. please check your script at @wait.");
-                }
-                i++;
-                state = State.ST_OTHERS;
-                yield return new WaitForSeconds(res);
+                parameters.Add(paramPart.Substring(1, paramPart.IndexOf("\"", 1) - 1));
+                paramPart = paramPart.Substring(paramPart.IndexOf("\"", 1) + 1).TrimStart().TrimStart(',').TrimStart();
+                Debug.Log("\"");
+                Debug.LogFormat("parameter:{0};", parameters[parameters.Count - 1]);
+                Debug.LogFormat("paramPart:{0};", paramPart);
+
             }
-            else if (lines[i].Equals("@showWindow"))
+            else if (paramPart.StartsWith("'"))
             {
-                messageWindow.SetWindowEnable(true);
-                i++;
-                state = State.ST_OTHERS;
-                yield return null;
+                parameters.Add(paramPart.Substring(1, paramPart.IndexOf("'", 1) - 1));
+                paramPart = paramPart.Substring(paramPart.IndexOf("'", 1) + 1).TrimStart().TrimStart(',').TrimStart();
+                Debug.Log("'");
+                Debug.LogFormat("parameter:{0};", parameters[parameters.Count - 1]);
+                Debug.LogFormat("paramPart:{0};", paramPart);
             }
-            else if (lines[i].Equals("@closeWindow"))
+            else if (char.IsDigit(paramPart, 0))
             {
-                messageWindow.SetWindowEnable(false);
-                i++;
-                state = State.ST_OTHERS;
-                yield return null;
+                int lastIndex = paramPart.IndexOf(",");
+                if (lastIndex <0)
+                {
+                    lastIndex = paramPart.IndexOf(")");
+                }
+                string parameter = paramPart.Substring(0, lastIndex).Trim();
+                int intResult;
+                float floatResult;
+                if (!int.TryParse(parameter, out intResult) && !float.TryParse(parameter, out floatResult))
+                {
+                    throw new System.Exception("Validation Error.");
+                }
+                parameters.Add(parameter);
+                paramPart = paramPart.Substring(lastIndex + 1).TrimStart();
+                Debug.Log("digit");
+                Debug.LogFormat("parameter:{0};", parameters[parameters.Count - 1]);
+                Debug.LogFormat("paramPart:{0};", paramPart);
             }
             else
             {
-                string err = "line:" + lines[i] + "script validation error. please check your script.";
-                throw new Exception(err);
-            }         
+                //TODO 今は, 数字と文字列のみで, 変数には未対応.
+                break;
+            }
         }
-        Debug.Log("ST_END");
-        state = State.ST_END;
-        yield return null;
+        Debug.Log("parameter analysis end.");
+        return parameters.ToArray();
+    }
+
+
+    //function nameのフォーマットに従っているか判定する.
+    //{alphabet}{alphabet | number | "_"}*
+    private bool isFunctionName(string s)
+    {
+        if (!char.IsLetter(s, 0))
+        {
+            return false;
+        }
+
+        for (int i = 1; i < s.Length - 1; i++)
+        {
+            if (!(char.IsLetterOrDigit(s, i) || s[i].Equals('_')))
+            {
+                return false;
+            }
+        }
+        if (!char.IsLetterOrDigit(s, s.Length - 1))
+        {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -238,11 +328,11 @@ public class MessageScriptParser : MonoBehaviour {
     {
 
         FileInfo fi = null;
-        #if UNITY_EDITOR
+#if UNITY_EDITOR
         fi = new FileInfo(Application.dataPath + "/" + _filePath);
-        #elif UNITY_ANDROID
+#elif UNITY_ANDROID
         fi = new FileInfo(Application.streamingAssetsPath + "/" + _filePath);        
-        #endif
+#endif
         
         string returnSt;
 

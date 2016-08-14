@@ -1,11 +1,11 @@
-@showWindow
-@message_start("god", 0.04)
+@f_showWindow
+@f_message_start("god", 0.04 )
 When you push the button "Generator Door", 
 the Warp Gate to the another world will be appeared.
-@message_end
-@message("angel", "Please try it.", 0.001)
-@message_start("angel", 0.1)
+@f_message_end
+@f_message("angel", "Please try it, ...", 0.001 )
+@f_message_start("angel", 0.1)
 After you pushed "D" key, this window will be closed in 3 seconds.
-@message_end
-@wait(3)
-@closeWindow
+@f_message_end
+@f_wait(3)
+@f_closeWindow
