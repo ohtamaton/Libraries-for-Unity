@@ -24,6 +24,9 @@ public class MessageWindowController : MonoBehaviour
     //Script Parser
     [SerializeField]
     MessageScriptParser parser;
+    //Converter
+    [SerializeField]
+    AlbedoConverter converter;
     //Scenario Script File Path
     public string filepath = "Resources/Scenario.txt";
     //メッセージウィンドウの表示・非表示
@@ -126,7 +129,7 @@ public class MessageWindowController : MonoBehaviour
                         end();
                     }
                 }
-                
+
                 process();
                 break;
             case MessageScriptParser.State.ST_END:
@@ -155,8 +158,16 @@ public class MessageWindowController : MonoBehaviour
             }
             return;
         }
-        message.text = scenario.Substring(0, index);
-        if (Time.time - currentTime > messageSpeed) { 
+        if (converter.enabled)
+        {
+            message.text = converter.convert(scenario.Substring(0, index));
+        }
+        else
+        {
+            message.text = scenario.Substring(0, index);
+        }
+        if (Time.time - currentTime > messageSpeed)
+        {
             index++;
             currentTime = Time.time;
         }
@@ -176,9 +187,16 @@ public class MessageWindowController : MonoBehaviour
      * ページ内の全文字を表示させる.
      */
     void end()
-    {        
+    {
         index = scenario.Length;
-        message.text = scenario.Substring(0, index);
+        if (converter.enabled)
+        {
+            message.text = converter.convert(scenario.Substring(0, index));
+        }
+        else
+        {
+            message.text = scenario.Substring(0, index);
+        }
         isEnd = true;
     }
 }
