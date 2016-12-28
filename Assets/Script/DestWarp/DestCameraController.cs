@@ -29,7 +29,7 @@ public class DestCameraController : MonoBehaviour {
     /**
      * DestCameraをMainCameraの動きに合わせて調整する.
      */
-void Update () {
+    void Update () {
 
         //ワールド→ローカルの変換後取得(Position, Rotation)
         Vector3 cameraInSourceSpace = Source.InverseTransformPoint(MainCamera.transform.position);
