@@ -92,7 +92,11 @@ public class MessageWindowController : MonoBehaviour
     //---------------------------------------------------
     
     /**
+     * <summary>
      * ページ内の文字表示をリセットして最初から表示を始める.
+     * </summary>
+     * @param
+     * @return
      */
     public void reset()
     {
@@ -101,17 +105,37 @@ public class MessageWindowController : MonoBehaviour
         isEnd = false;
     }
 
-    //TODO name process
+    /**
+     * <summary>
+     * Speakerを変更する
+     * </summary>
+     * @param s Speaker名
+     * @return
+     */
     public void SetSpeaker(string s)
     {
         speaker.text = s;
     }
 
+    /**
+     * <summary>
+     * メッセージウィンドウの表示・非表示を変更する.
+     * </summary>
+     * @param b メッセージウィンドウの表示・非表示
+     * @return
+     */
     public void SetWindowEnable(bool b)
     {
         enables = b;
     }
 
+    /**
+     * <summary>
+     * 次のページへの切り替え待ちシンボルの表示・非表示を変更する.
+     * </summary>
+     * @param b シンボルの表示・非表示
+     * @return
+     */
     public void SetWaitSimbolEnable(bool b)
     {
         waitSimbolenabled = b;
@@ -127,17 +151,32 @@ public class MessageWindowController : MonoBehaviour
     // other
     //---------------------------------------------------
 
+    /**
+     * <summary>
+     * メッセージウィンドウの初期化処理
+     * </summary>
+     * @param
+     * @return
+     */
     void Start()
     {
         currentTime = Time.time;
         parser.messageWindow = this;
 
         //TODO 実際は下記の処理はStartScenarioのみで行うべき.
+        //filepathのScriptを読み込む
         parser.openScript(filepath);
+
+        //ScriptのParse処理を1行ずつ実行
         StartCoroutine(parser.Parse());
     }
 
-    // Update is called once per frame
+    /**
+     * <summary>
+     * </summary>
+     * @param
+     * @return
+     */
     void Update()
     {
         switch (parser.state)
@@ -183,7 +222,11 @@ public class MessageWindowController : MonoBehaviour
     }
 
     /**
+     * <summary>
      * 文字を1文字ずつ表示する処理および, ページ移動待ちシンボルの点滅処理を行う.
+     * </summary>
+     * @param
+     * @return
      */
     void process()
     {
@@ -213,6 +256,12 @@ public class MessageWindowController : MonoBehaviour
         }
     }
 
+    /**
+     * <summary>
+     * </summary>
+     * @param
+     * @return
+     */
     void StartScenario(string _filepath)
     {
         filepath = _filepath;
@@ -221,7 +270,11 @@ public class MessageWindowController : MonoBehaviour
     }
 
     /**
+     * <summary>
      * ページ内の全文字を表示させる.
+     * </summary>
+     * @param
+     * @return
      */
     void end()
     {

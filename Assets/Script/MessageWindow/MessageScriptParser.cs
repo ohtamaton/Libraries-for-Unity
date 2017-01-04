@@ -24,11 +24,13 @@ public class MessageScriptParser : MonoBehaviour {
     // public
     //---------------------------------------------------
     
+    //ScriptのParse状態
     public State state = State.ST_OTHERS;
-
     public enum State
     {
-        ST_MESSAGE, ST_OTHERS, ST_END
+        ST_MESSAGE, //メッセージ部
+        ST_OTHERS,  //メッセージ部以外
+        ST_END      //Scriptの最後
     }
 
     //メッセージウィンドウ処理用のController
@@ -45,24 +47,23 @@ public class MessageScriptParser : MonoBehaviour {
     //For the future upgrade
     //TODO SelectWindowController selectWindow;
 
-//===========================================================
-// 関数宣言
-//===========================================================
+    //===========================================================
+    // 関数宣言
+    //===========================================================
     //---------------------------------------------------
     // public
     //---------------------------------------------------
 
     /**
-     * ScriptPserser
-     * @v_var = 1なども処理できるように
-     * if (条件式) else if elseなども処理できるように
-     * while(条件式) do doneなども処理できるように
-     * for()
-     * 条件式 ==, !=, <, >, >=, <=, &&, 
+     * <summary>
+     * ScriptPserse用のコルーチン
+     * </summary>
+     * @param
+     * @return
      */
     public IEnumerator Parse()
     {
-
+        //プラットフォームごとにdelimiter, 改行コードを設定
 #if UNITY_EDITOR
         string[] delimiter = { ("\r\n") };
         string newLine = "\r\n";
@@ -80,8 +81,6 @@ public class MessageScriptParser : MonoBehaviour {
 
         while ((i < lines.Length) || (state == State.ST_MESSAGE)) //Scriptの最終行まで処理する.
         {
-
-
             //@を期待するモードかどうかで場合分け
             if (state == State.ST_MESSAGE)
             {
@@ -180,30 +179,24 @@ public class MessageScriptParser : MonoBehaviour {
                          * @f_else if($select ==1)
                          * @f_else
                          * 
-                         * 
                          * @f_if ($rand == 30)
                          * @f_else if ($rand == 60)
                          * @f_else
                          * 
-                         * 
                          * @f_if ($switch[10] == true)
                          * 
-                         *
                          * @f_if($switch[10] != true)
-                         * 
                          */
                         //選択結果による分岐
                         //乱数による分岐
-                        //フラグによる分岐(C#からフラグ情報の取得が必要? フラグ番号のon/offなど)
-                        yield return null;
-                        break;
+                        //フラグによる分岐
+                        throw new Exception("@f_if is not supported yet.");
                     case "jump":
                         /**
                          * @jump(10)
                          */
-                        //あるスクリプトの行にジャンプする
-                        yield return null;
-                        break;
+                        //TODO あるスクリプトの行にジャンプする
+                        throw new Exception("@f_jump is not supported yet.");
                     default:
                         throw new Exception("script validation error. please check your script at @wait.");
                 }
@@ -219,9 +212,12 @@ public class MessageScriptParser : MonoBehaviour {
         yield return null;
     }
 
-    /**
+     /**
+     * <summary>
      * 処理するシナリオファイルを開き, 内容をscriptに設定.
-     *
+     * </summary>
+     * @param _filePath 読み込むScriptのファイルパス
+     * @return
      */
     public void openScript(string _filePath)
     {
