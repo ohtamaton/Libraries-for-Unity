@@ -47,9 +47,9 @@ public class MessageScriptParser : MonoBehaviour {
     //For the future upgrade
     //TODO SelectWindowController selectWindow;
 
-    //===========================================================
-    // 関数宣言
-    //===========================================================
+//===========================================================
+// 関数宣言
+//===========================================================
     //---------------------------------------------------
     // public
     //---------------------------------------------------
@@ -250,6 +250,13 @@ public class MessageScriptParser : MonoBehaviour {
     // private
     //---------------------------------------------------
 
+    /**
+     * <summary>
+     * @f_messageの処理
+     * </summary>
+     * @param parameters パラメータ
+     * @return
+     */
     private void Message(string[] parameters)
     {
         messageWindow.reset();
@@ -267,6 +274,13 @@ public class MessageScriptParser : MonoBehaviour {
         messageWindow.messageSpeed = res;
     }
 
+    /**
+     * <summary>
+     * @f_nameの処理
+     * </summary>
+     * @param parameters パラメータ
+     * @return
+     */
     private void Name(string[] parameters)
     {
         if (parameters.Length != 1)
@@ -276,6 +290,14 @@ public class MessageScriptParser : MonoBehaviour {
         messageWindow.SetSpeaker(parameters[0]);
     }
 
+    /**
+     * <summary>
+     * @f_selectの処理
+     * For the future upgrade
+     * </summary>
+     * @param parameters パラメータ
+     * @return
+     */
     private void Select(string[] parameters)
     {
         //TODO implementation
@@ -286,6 +308,13 @@ public class MessageScriptParser : MonoBehaviour {
         throw new Exception("Sorry, this function is Not implemented yet.");
     }
 
+    /**
+     * <summary>
+     * @f_[関数名]の関数名の取得
+     * </summary>
+     * @param s Scriptの1行
+     * @return 関数名
+     */
     private string getFunctionName(string s)
     {
         //関数名の取得
