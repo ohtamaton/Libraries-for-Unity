@@ -13,15 +13,13 @@ using System.Collections;
 
 /**
  * WarpGateGenerator
- *
  */
 public class WarpGateGenerator : MonoBehaviour {
 
-    //作成するワープドアのプレハブ]
-    [SerializeField]
-    private GameObject prefab;
+    //作成するワープドアのプレハブ
+    [SerializeField] private GameObject prefab;
 
-    //生成したワープドアを保持する
+    //生成したワープドアを保持する 
     private GameObject door;
 
     //ワープドアを生成する場所のカメラからの距離
@@ -44,11 +42,6 @@ public class WarpGateGenerator : MonoBehaviour {
     void Start () {
         destCamController = rule.GetComponent<DestCameraController>();
         gyroController = gameObject.GetComponent<GyroCameraController>();
-	}
-	
-	// Update is called once per frame
-	void Update () {
-
 	}
 
     //ワープドアを生成し, その位置をPortalCameraControllerに設定する.
