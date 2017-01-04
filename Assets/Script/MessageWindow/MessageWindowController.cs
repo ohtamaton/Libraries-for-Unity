@@ -1,13 +1,12 @@
 ﻿/**
- * MessageWindow.cs
+ * MessageWindowController.cs
  * 
  * メッセージウィンドウに対する処理を行う. 
  *
  * @author ys.ohta
  * @version 1.0
- * @date 2016/08/XX
+ * @date 2016/08/15
  */
-
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
@@ -17,68 +16,89 @@ using System;
 
 /**
  * MessageWindowController
- * 
  */
 public class MessageWindowController : MonoBehaviour
 {
-    //Script Parser
-    [SerializeField]
-    MessageScriptParser parser;
-    //Converter
-    [SerializeField]
-    AlbedoConverter converter;
+//===========================================================
+// 変数宣言
+//===========================================================
+    //---------------------------------------------------
+    // public
+    //---------------------------------------------------
+
     //Scenario Script File Path
     public string filepath = "Resources/Scenario.txt";
-    //メッセージウィンドウの表示・非表示
-    private bool enables = false;
+    
     //メッセージウィンドウオブジェクト
     public Image messageWindow;
 
     //現在のページのメッセージウィンドウに表示するテキストシナリオ
     public string scenario;
-    //シナリオのページ数
-    private int page = 0;
-    //ページ内の表示されている文字数
-    private int index = 0;
-    //ページ内のすべての文字が表示されたかどうか
-    private bool isEnd = false;
-    //現在の時刻
-    private float currentTime;
-    //表示中のメッセージ
-    [SerializeField]
-    private Text message;
-    //表示する話者名
-    [SerializeField]
-    private Text speaker;
-    //ページ切り替え待ちシンボル
-    [SerializeField]
-    private Text waitSimbol;
-    //ページ切り替え待ちシンボルの表示・非表示
-    private bool waitSimbolenabled = false;
+
     //ページ切り替え待ちシンボル点滅スピード
     public float speed = 0.15f;
+
     //文字表示スピード
     public float messageSpeed = 0.04f;
+
+    //---------------------------------------------------
+    // private
+    //---------------------------------------------------
+
+    //Script Parser
+    [SerializeField] private MessageScriptParser parser;
+
+    //Converter
+    [SerializeField] private AlbedoConverter converter;
+    
+    //表示中のメッセージ
+    [SerializeField] private Text message;
+    
+    //表示する話者名
+    [SerializeField] private Text speaker;
+    
+    //ページ切り替え待ちシンボル
+    [SerializeField] private Text waitSimbol;
+
+    //メッセージウィンドウの表示・非表示
+    private bool enables = false;
+
+    //シナリオのページ数
+    private int page = 0;
+
+    //ページ内の表示されている文字数
+    private int index = 0;
+
+    //ページ内のすべての文字が表示されたかどうか
+    private bool isEnd = false;
+
+    //現在の時刻
+    private float currentTime;
+
+    //ページ切り替え待ちシンボルの表示・非表示
+    private bool waitSimbolenabled = false;
+    
     //Delimiter
     private string[] delimiter = { "@page\r\n" };
+    
     //Delimiter
     private string[] newLine = { "\r\n" };
 
-    void Start()
+//===========================================================
+// 関数宣言
+//===========================================================
+    //---------------------------------------------------
+    // public
+    //---------------------------------------------------
+    
+    /**
+     * ページ内の文字表示をリセットして最初から表示を始める.
+     */
+    public void reset()
     {
-        currentTime = Time.time;
-        parser.messageWindow = this;
-
-        //TODO 実際は下記の処理はStartScenarioのみで行うべき.
-        parser.openScript(filepath);
-        StartCoroutine(parser.Parse());
-    }
-
-    void StartScenario(string _filepath)
-    {
-        filepath = _filepath;
-        parser.openScript(filepath);
-        StartCoroutine(parser.Parse());
+        index = 0;
+        waitSimbolenabled = false;
+        isEnd = false;
     }
 
     //TODO name process
@@ -95,6 +115,26 @@ public class MessageWindowController : MonoBehaviour
     public void SetWaitSimbolEnable(bool b)
     {
         waitSimbolenabled = b;
+    }
+
+    //---------------------------------------------------
+    // private
+    //---------------------------------------------------
+
+    //None.
+
+    //---------------------------------------------------
+    // other
+    //---------------------------------------------------
+
+    void Start()
+    {
+        currentTime = Time.time;
+        parser.messageWindow = this;
+
+        //TODO 実際は下記の処理はStartScenarioのみで行うべき.
+        parser.openScript(filepath);
+        StartCoroutine(parser.Parse());
     }
 
     // Update is called once per frame
@@ -173,14 +213,11 @@ public class MessageWindowController : MonoBehaviour
         }
     }
 
-    /**
-     * ページ内の文字表示をリセットして最初から表示を始める.
-     */
-    public void reset()
+    void StartScenario(string _filepath)
     {
-        index = 0;
-        waitSimbolenabled = false;
-        isEnd = false;
+        filepath = _filepath;
+        parser.openScript(filepath);
+        StartCoroutine(parser.Parse());
     }
 
     /**

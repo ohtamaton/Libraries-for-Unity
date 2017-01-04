@@ -15,36 +15,58 @@ using System.Collections;
  * WarpGateGenerator
  */
 public class WarpGateGenerator : MonoBehaviour {
+//===========================================================
+// 変数宣言
+//===========================================================
 
-    //作成するワープドアのプレハブ
-    [SerializeField] private GameObject prefab;
-
-    //生成したワープドアを保持する 
-    private GameObject door;
+    //---------------------------------------------------
+    // public
+    //---------------------------------------------------
 
     //ワープドアを生成する場所のカメラからの距離
     public float distance = 10.0f;
 
-    //@TODO
-    [SerializeField]
-    private GameObject rule;
-    private DestCameraController destCamController;
-    [SerializeField]
-    private Camera destCamera;
+    //---------------------------------------------------
+    // private
+    //---------------------------------------------------
 
+    //作成するワープドアのプレハブ
     [SerializeField]
-    private Camera webCamera;
-    [SerializeField]
-    private GameObject webView;
-    private GyroCameraController gyroController;
-    
-    // Use this for initialization
-    void Start () {
-        destCamController = rule.GetComponent<DestCameraController>();
-        gyroController = gameObject.GetComponent<GyroCameraController>();
-	}
+    private GameObject prefab;
 
-    //ワープドアを生成し, その位置をPortalCameraControllerに設定する.
+    //生成したワープドア
+    private GameObject door;
+
+    //ワープ先のカメラのコントローラ
+    [SerializeField] private DestCameraController destCamController;
+
+    //ワープ先のカメラ
+    [SerializeField] private Camera destCamera;
+
+    //ウェブカメラ
+    [SerializeField] private Camera webCamera;
+
+    //ウェブカメラ投影用のオブジェクト
+    [SerializeField] private GameObject webView;
+
+    //ジャイロカメラコントローラ
+    [SerializeField] private GyroCameraController gyroController;
+
+//===========================================================
+// 関数宣言
+//===========================================================
+
+    //---------------------------------------------------
+    // public
+    //---------------------------------------------------
+
+    /**
+     * <summary>
+     * ワープドアを生成し, その位置をDestCameraControllerに設定する.
+     * </summary>
+     * @param
+     * @return
+     **/
     public void generate()
     {
         //既に生成済みのワープドアがあれば削除
@@ -52,25 +74,52 @@ public class WarpGateGenerator : MonoBehaviour {
         {
             Destroy(door);
         }
-        //カメラから正面のdistance距離の値を取得
+
+        //ドアの生成位置を計算
         Vector3 pos = new Vector3(
             transform.position.x + transform.forward.x * distance, 
             0, 
             transform.position.z + transform.forward.z*distance
             );
+
+        //ドアを生成
         door = Instantiate(prefab, pos, transform.rotation) as GameObject;
+
+        //DestCameraControllerにワープドアの位置を設定
         destCamController.Source = door.transform;
     }
 
-    //生成したワープドアにMainCameraがぶつかった場合にワープ.
+    //---------------------------------------------------
+    // public
+    //---------------------------------------------------
+
+    //None. 
+
+    //---------------------------------------------------
+    // other
+    //---------------------------------------------------
+
+    /**
+     * <summary>
+     * 生成したワープドアにMainCameraがぶつかった場合にワープ.
+     * </summary>
+     * @param other
+     * @return
+     **/
     void OnTriggerEnter(Collider other)
     {
+        //MainCameraがワープゲートに衝突した場合
         if (other.gameObject.layer == LayerMask.NameToLayer("warpGate"))
         {
+            //Webカメラ用のオブジェクトを削除
             Destroy(webView);
             webCamera.enabled = false;
+
+            //MainCameraの位置をワープ先に設定
             transform.position = destCamera.transform.position;
             transform.rotation = destCamera.transform.rotation;
+
+            //ジャイロセンサをdisable
             gyroController.enabled = false;
         }
     }
