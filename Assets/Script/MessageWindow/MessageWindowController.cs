@@ -173,6 +173,7 @@ public class MessageWindowController : MonoBehaviour
 
     /**
      * <summary>
+     * メッセージウィンドウイベント中のキーボード入力処理
      * </summary>
      * @param
      * @return
@@ -195,6 +196,7 @@ public class MessageWindowController : MonoBehaviour
                 }
                 if (Input.GetKeyDown(KeyCode.D))
                 {
+                    //Dボタンを押されるとページ送り
                     if (isEnd)
                     {
                         if (page < scenario.Length - 1)
@@ -258,8 +260,9 @@ public class MessageWindowController : MonoBehaviour
 
     /**
      * <summary>
+     * メッセージウィンドウイベントの開始
      * </summary>
-     * @param
+     * @param _filepath スクリプト
      * @return
      */
     void StartScenario(string _filepath)
@@ -271,7 +274,7 @@ public class MessageWindowController : MonoBehaviour
 
     /**
      * <summary>
-     * ページ内の全文字を表示させる.
+     * ページ内の全文字を表示.
      * </summary>
      * @param
      * @return

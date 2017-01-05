@@ -5,7 +5,6 @@
  * @version 1.0
  * @date 2016/08/15
  */
-
 using UnityEngine;
 using System.Collections;
 using System.IO;
@@ -349,6 +348,13 @@ public class MessageScriptParser : MonoBehaviour {
         return funcName;
     }
 
+    /**
+     * <summary>
+     * Script内の関数のパラメータ部の取得
+     * </summary>
+     * @param s パラメータ部の文字列
+     * @return パラメータ群
+     */
     private string[] getParameters(string paramPart)
     {
         List<string> parameters = new List<string>();
@@ -360,9 +366,9 @@ public class MessageScriptParser : MonoBehaviour {
             {
                 parameters.Add(paramPart.Substring(1, paramPart.IndexOf("\"", 1) - 1));
                 paramPart = paramPart.Substring(paramPart.IndexOf("\"", 1) + 1).TrimStart().TrimStart(',').TrimStart();
-                Debug.Log("\"");
-                Debug.LogFormat("parameter:{0};", parameters[parameters.Count - 1]);
-                Debug.LogFormat("paramPart:{0};", paramPart);
+                //Debug.Log("\"");
+                //Debug.LogFormat("parameter:{0};", parameters[parameters.Count - 1]);
+                //Debug.LogFormat("paramPart:{0};", paramPart);
 
             }
             else if (paramPart.StartsWith("'"))
@@ -403,8 +409,14 @@ public class MessageScriptParser : MonoBehaviour {
         return parameters.ToArray();
     }
 
-    //function nameのフォーマットに従っているか判定する.
-    //{alphabet}{alphabet | number | "_"}*
+    /**
+     * <summary>
+     * function nameのフォーマットに従っているか判定する.
+     * {alphabet}{alphabet | number | "_"}*
+     * </summary>
+     * @param s 関数名
+     * @return 関数名のフォーマットのバリデーション結果
+     */
     private bool isFunctionName(string s)
     {
         if (!char.IsLetter(s, 0))
